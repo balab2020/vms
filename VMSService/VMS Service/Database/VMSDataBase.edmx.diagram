@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="24cc5b0a53074e4c89244c1274b1e647" Name="Diagram1">
+        <EntityTypeShape EntityType="VMSDbModel.Meeting" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="VMSDbModel.MeetingStatu" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="VMSDbModel.Organizer" Width="1.5" PointX="0.75" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="VMSDbModel.Visitor" Width="1.5" PointX="0.75" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="VMSDbModel.MeetingStatusHistory" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
+        <AssociationConnector Association="VMSDbModel.FK_Meeting_Organizer" ManuallyRouted="false" />
+        <AssociationConnector Association="VMSDbModel.FK_Meeting_Visitor" ManuallyRouted="false" />
+        <AssociationConnector Association="VMSDbModel.FK_MeetingStatusHistory_Meeting" ManuallyRouted="false" />
+        <AssociationConnector Association="VMSDbModel.FK_MeetingStatusHistory_MeetingStatus" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

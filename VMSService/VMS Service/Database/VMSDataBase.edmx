@@ -1,0 +1,370 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="VMSDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Meeting">
+          <Key>
+            <PropertyRef Name="MeetingId" />
+          </Key>
+          <Property Name="MeetingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrganizerId" Type="int" Nullable="false" />
+          <Property Name="VisitorId" Type="int" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="Purpose" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="OTP" Type="int" />
+        </EntityType>
+        <EntityType Name="MeetingStatus">
+          <Key>
+            <PropertyRef Name="MeetingStatusId" />
+          </Key>
+          <Property Name="MeetingStatusId" Type="int" Nullable="false" />
+          <Property Name="Status" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'VMS.dbo.MeetingStatusHistory' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MeetingStatusHistory">
+          <Key>
+            <PropertyRef Name="MeetingHistoryId" />
+            <PropertyRef Name="MeetingId" />
+            <PropertyRef Name="MeetingStatusId" />
+            <PropertyRef Name="LasteUpdatedAt" />
+          </Key>
+          <Property Name="MeetingHistoryId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MeetingId" Type="int" Nullable="false" />
+          <Property Name="MeetingStatusId" Type="int" Nullable="false" />
+          <Property Name="LasteUpdatedAt" Type="datetime" Nullable="false" />
+          <Property Name="Remarks" Type="nvarchar(max)" />
+          <Property Name="UserEmail" Type="nvarchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="Organizer">
+          <Key>
+            <PropertyRef Name="OrganizerId" />
+          </Key>
+          <Property Name="OrganizerId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="Department" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="Designation" Type="nvarchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Visitor">
+          <Key>
+            <PropertyRef Name="VisitorId" />
+          </Key>
+          <Property Name="VisitorId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EmailId" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="ContactNumber" Type="nvarchar" MaxLength="15" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Meeting_Organizer">
+          <End Role="Organizer" Type="Self.Organizer" Multiplicity="1" />
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Organizer">
+              <PropertyRef Name="OrganizerId" />
+            </Principal>
+            <Dependent Role="Meeting">
+              <PropertyRef Name="OrganizerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Meeting_Visitor">
+          <End Role="Visitor" Type="Self.Visitor" Multiplicity="1" />
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Visitor">
+              <PropertyRef Name="VisitorId" />
+            </Principal>
+            <Dependent Role="Meeting">
+              <PropertyRef Name="VisitorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MeetingStatusHistory_Meeting">
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="1" />
+          <End Role="MeetingStatusHistory" Type="Self.MeetingStatusHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Meeting">
+              <PropertyRef Name="MeetingId" />
+            </Principal>
+            <Dependent Role="MeetingStatusHistory">
+              <PropertyRef Name="MeetingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MeetingStatusHistory_MeetingStatus">
+          <End Role="MeetingStatus" Type="Self.MeetingStatus" Multiplicity="1" />
+          <End Role="MeetingStatusHistory" Type="Self.MeetingStatusHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MeetingStatus">
+              <PropertyRef Name="MeetingStatusId" />
+            </Principal>
+            <Dependent Role="MeetingStatusHistory">
+              <PropertyRef Name="MeetingStatusId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Function Name="spCreateMeeting" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrganizerId" Type="int" Mode="In" />
+          <Parameter Name="VisitorEmail" Type="nvarchar" Mode="In" />
+          <Parameter Name="ContactNumber" Type="nvarchar" Mode="In" />
+          <Parameter Name="ScheduledDate" Type="datetime" Mode="In" />
+          <Parameter Name="Purpose" Type="nvarchar(max)" Mode="In" />
+        </Function>
+        <EntityContainer Name="VMSDbModelStoreContainer">
+          <EntitySet Name="Meeting" EntityType="Self.Meeting" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MeetingStatus" EntityType="Self.MeetingStatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Organizer" EntityType="Self.Organizer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Visitor" EntityType="Self.Visitor" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MeetingStatusHistory" EntityType="Self.MeetingStatusHistory" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+[MeetingStatusHistory].[MeetingHistoryId] AS [MeetingHistoryId], 
+[MeetingStatusHistory].[MeetingId] AS [MeetingId], 
+[MeetingStatusHistory].[MeetingStatusId] AS [MeetingStatusId], 
+[MeetingStatusHistory].[LasteUpdatedAt] AS [LasteUpdatedAt], 
+[MeetingStatusHistory].[Remarks] AS [Remarks], 
+[MeetingStatusHistory].[UserEmail] AS [UserEmail]
+FROM [dbo].[MeetingStatusHistory] AS [MeetingStatusHistory]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK_Meeting_Organizer" Association="Self.FK_Meeting_Organizer">
+            <End Role="Organizer" EntitySet="Organizer" />
+            <End Role="Meeting" EntitySet="Meeting" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Meeting_Visitor" Association="Self.FK_Meeting_Visitor">
+            <End Role="Visitor" EntitySet="Visitor" />
+            <End Role="Meeting" EntitySet="Meeting" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MeetingStatusHistory_Meeting" Association="Self.FK_MeetingStatusHistory_Meeting">
+            <End Role="Meeting" EntitySet="Meeting" />
+            <End Role="MeetingStatusHistory" EntitySet="MeetingStatusHistory" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MeetingStatusHistory_MeetingStatus" Association="Self.FK_MeetingStatusHistory_MeetingStatus">
+            <End Role="MeetingStatus" EntitySet="MeetingStatus" />
+            <End Role="MeetingStatusHistory" EntitySet="MeetingStatusHistory" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="VMSDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Meeting">
+          <Key>
+            <PropertyRef Name="MeetingId" />
+          </Key>
+          <Property Name="MeetingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrganizerId" Type="Int32" Nullable="false" />
+          <Property Name="VisitorId" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Purpose" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OTP" Type="Int32" />
+          <NavigationProperty Name="Organizer" Relationship="Self.FK_Meeting_Organizer" FromRole="Meeting" ToRole="Organizer" />
+          <NavigationProperty Name="Visitor" Relationship="Self.FK_Meeting_Visitor" FromRole="Meeting" ToRole="Visitor" />
+          <NavigationProperty Name="MeetingStatusHistories" Relationship="Self.FK_MeetingStatusHistory_Meeting" FromRole="Meeting" ToRole="MeetingStatusHistory" />
+        </EntityType>
+        <EntityType Name="MeetingStatu">
+          <Key>
+            <PropertyRef Name="MeetingStatusId" />
+          </Key>
+          <Property Name="MeetingStatusId" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="MeetingStatusHistories" Relationship="Self.FK_MeetingStatusHistory_MeetingStatus" FromRole="MeetingStatus" ToRole="MeetingStatusHistory" />
+        </EntityType>
+        <EntityType Name="Organizer">
+          <Key>
+            <PropertyRef Name="OrganizerId" />
+          </Key>
+          <Property Name="OrganizerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Department" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Designation" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Meetings" Relationship="Self.FK_Meeting_Organizer" FromRole="Organizer" ToRole="Meeting" />
+        </EntityType>
+        <EntityType Name="Visitor">
+          <Key>
+            <PropertyRef Name="VisitorId" />
+          </Key>
+          <Property Name="VisitorId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmailId" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ContactNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Meetings" Relationship="Self.FK_Meeting_Visitor" FromRole="Visitor" ToRole="Meeting" />
+        </EntityType>
+        <EntityType Name="MeetingStatusHistory">
+          <Key>
+            <PropertyRef Name="MeetingHistoryId" />
+            <PropertyRef Name="MeetingId" />
+            <PropertyRef Name="MeetingStatusId" />
+            <PropertyRef Name="LasteUpdatedAt" />
+          </Key>
+          <Property Name="MeetingHistoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MeetingId" Type="Int32" Nullable="false" />
+          <Property Name="MeetingStatusId" Type="Int32" Nullable="false" />
+          <Property Name="LasteUpdatedAt" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UserEmail" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Meeting" Relationship="Self.FK_MeetingStatusHistory_Meeting" FromRole="MeetingStatusHistory" ToRole="Meeting" />
+          <NavigationProperty Name="MeetingStatu" Relationship="Self.FK_MeetingStatusHistory_MeetingStatus" FromRole="MeetingStatusHistory" ToRole="MeetingStatus" />
+        </EntityType>
+        <Association Name="FK_Meeting_Organizer">
+          <End Role="Organizer" Type="Self.Organizer" Multiplicity="1" />
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Organizer">
+              <PropertyRef Name="OrganizerId" />
+            </Principal>
+            <Dependent Role="Meeting">
+              <PropertyRef Name="OrganizerId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Meeting_Visitor">
+          <End Role="Visitor" Type="Self.Visitor" Multiplicity="1" />
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Visitor">
+              <PropertyRef Name="VisitorId" />
+            </Principal>
+            <Dependent Role="Meeting">
+              <PropertyRef Name="VisitorId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MeetingStatusHistory_Meeting">
+          <End Role="Meeting" Type="Self.Meeting" Multiplicity="1" />
+          <End Role="MeetingStatusHistory" Type="Self.MeetingStatusHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Meeting">
+              <PropertyRef Name="MeetingId" />
+            </Principal>
+            <Dependent Role="MeetingStatusHistory">
+              <PropertyRef Name="MeetingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MeetingStatusHistory_MeetingStatus">
+          <End Role="MeetingStatus" Type="Self.MeetingStatu" Multiplicity="1" />
+          <End Role="MeetingStatusHistory" Type="Self.MeetingStatusHistory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MeetingStatus">
+              <PropertyRef Name="MeetingStatusId" />
+            </Principal>
+            <Dependent Role="MeetingStatusHistory">
+              <PropertyRef Name="MeetingStatusId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="VMSDbEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Meetings" EntityType="Self.Meeting" />
+          <EntitySet Name="MeetingStatus" EntityType="Self.MeetingStatu" />
+          <EntitySet Name="Organizers" EntityType="Self.Organizer" />
+          <EntitySet Name="Visitors" EntityType="Self.Visitor" />
+          <EntitySet Name="MeetingStatusHistories" EntityType="Self.MeetingStatusHistory" />
+          <AssociationSet Name="FK_Meeting_Organizer" Association="Self.FK_Meeting_Organizer">
+            <End Role="Organizer" EntitySet="Organizers" />
+            <End Role="Meeting" EntitySet="Meetings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Meeting_Visitor" Association="Self.FK_Meeting_Visitor">
+            <End Role="Visitor" EntitySet="Visitors" />
+            <End Role="Meeting" EntitySet="Meetings" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MeetingStatusHistory_Meeting" Association="Self.FK_MeetingStatusHistory_Meeting">
+            <End Role="Meeting" EntitySet="Meetings" />
+            <End Role="MeetingStatusHistory" EntitySet="MeetingStatusHistories" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MeetingStatusHistory_MeetingStatus" Association="Self.FK_MeetingStatusHistory_MeetingStatus">
+            <End Role="MeetingStatus" EntitySet="MeetingStatus" />
+            <End Role="MeetingStatusHistory" EntitySet="MeetingStatusHistories" />
+          </AssociationSet>
+          <FunctionImport Name="spCreateMeeting">
+            <Parameter Name="OrganizerId" Mode="In" Type="Int32" />
+            <Parameter Name="VisitorEmail" Mode="In" Type="String" />
+            <Parameter Name="ContactNumber" Mode="In" Type="String" />
+            <Parameter Name="ScheduledDate" Mode="In" Type="DateTime" />
+            <Parameter Name="Purpose" Mode="In" Type="String" />
+          </FunctionImport>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="VMSDbModelStoreContainer" CdmEntityContainer="VMSDbEntities">
+          <EntitySetMapping Name="Meetings">
+            <EntityTypeMapping TypeName="VMSDbModel.Meeting">
+              <MappingFragment StoreEntitySet="Meeting">
+                <ScalarProperty Name="MeetingId" ColumnName="MeetingId" />
+                <ScalarProperty Name="OrganizerId" ColumnName="OrganizerId" />
+                <ScalarProperty Name="VisitorId" ColumnName="VisitorId" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Purpose" ColumnName="Purpose" />
+                <ScalarProperty Name="OTP" ColumnName="OTP" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MeetingStatus">
+            <EntityTypeMapping TypeName="VMSDbModel.MeetingStatu">
+              <MappingFragment StoreEntitySet="MeetingStatus">
+                <ScalarProperty Name="MeetingStatusId" ColumnName="MeetingStatusId" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Organizers">
+            <EntityTypeMapping TypeName="VMSDbModel.Organizer">
+              <MappingFragment StoreEntitySet="Organizer">
+                <ScalarProperty Name="OrganizerId" ColumnName="OrganizerId" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Visitors">
+            <EntityTypeMapping TypeName="VMSDbModel.Visitor">
+              <MappingFragment StoreEntitySet="Visitor">
+                <ScalarProperty Name="VisitorId" ColumnName="VisitorId" />
+                <ScalarProperty Name="EmailId" ColumnName="EmailId" />
+                <ScalarProperty Name="ContactNumber" ColumnName="ContactNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MeetingStatusHistories">
+            <EntityTypeMapping TypeName="VMSDbModel.MeetingStatusHistory">
+              <MappingFragment StoreEntitySet="MeetingStatusHistory">
+                <ScalarProperty Name="MeetingHistoryId" ColumnName="MeetingHistoryId" />
+                <ScalarProperty Name="MeetingId" ColumnName="MeetingId" />
+                <ScalarProperty Name="MeetingStatusId" ColumnName="MeetingStatusId" />
+                <ScalarProperty Name="LasteUpdatedAt" ColumnName="LasteUpdatedAt" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="spCreateMeeting" FunctionName="VMSDbModel.Store.spCreateMeeting" />
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
