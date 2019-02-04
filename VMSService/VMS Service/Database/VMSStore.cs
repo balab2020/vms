@@ -33,7 +33,7 @@ namespace VMS_Service.Database
             {
                 Random randomGenerator = new Random();
                 var otp = state == MeetingState.Acknowledged ? randomGenerator.Next(100000,999999) : -1;
-                db.spUpdateMeeting(id, state.ToString(), email??string.Empty, otp );   
+                db.spUpdateMeeting(id, (int)state, email??string.Empty, otp );   
             }
             return true;
         }

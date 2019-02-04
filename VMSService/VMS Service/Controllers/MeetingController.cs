@@ -4,6 +4,7 @@
     using VMS_Service.Database;
     using Meeting = Models.Meeting;
 
+    [RoutePrefix("api/meeting")]
     public class MeetingController : ApiController
     {
 
@@ -21,7 +22,7 @@
 
             return new Meeting
             {
-                DateTime = meeting.Date,
+                DateTime = meeting.Date.ToString(),
                 MeetingId = id,
                 OrganizorId = meeting.OrganizerId,
                 Mobile = meeting.Visitor.ContactNumber,
@@ -33,31 +34,21 @@
         [HttpPost]
         public void Create([FromBody]Meeting meeting)
         {
-            _store.CreateMeeting(meeting.OrganizorId,meeting.VisitorEmail, meeting.Mobile,meeting.DateTime,meeting.Purpose);
+            _store.CreateMeeting(meeting.OrganizorId,meeting.VisitorEmail, meeting.Mobile,System.DateTime.Parse(meeting.DateTime),meeting.Purpose);
         }
 
         [HttpPut]
-        public void Acknowledge([FromUri]int meetingId, [FromUri] string email)
+        [Route("Acknowledge/{meetingId}")]
+        public void Acknowledge(int meetingId, [FromUri] string email)
         {
             _store.UpdateMeeting(meetingId, MeetingState.Acknowledged, email);
         }
 
         [HttpPut]
-        public void Cancel([FromUri]int meetingId, [FromUri]string userEmail)
+        [Route("Complete/{meetingId}")]
+        public void Complete(int meetingId, [FromUri] string email)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Cancelled, userEmail);
-        }
-
-        [HttpPut]
-        public void Reject([FromUri]int meetingId, [FromUri]string userEmail)
-        {
-            _store.UpdateMeeting(meetingId, MeetingState.Rejected);
-        }
-
-        [HttpPut]
-        public void Complete([FromUri]int meetingId, [FromUri]string userEmail)
-        {
-            _store.UpdateMeeting(meetingId, MeetingState.Closed, userEmail);
+            _store.UpdateMeeting(meetingId, MeetingState.Closed, email);
         }
     }
 }

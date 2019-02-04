@@ -114,7 +114,7 @@ warning 6002: The table/view 'VMS.dbo.MeetingStatusHistory' does not have a prim
         </Function>
         <Function Name="spUpdateMeeting" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="MeetingID" Type="int" Mode="In" />
-          <Parameter Name="status" Type="varchar" Mode="In" />
+          <Parameter Name="statusId" Type="int" Mode="In" />
           <Parameter Name="email" Type="varchar" Mode="In" />
           <Parameter Name="OTP" Type="int" Mode="In" />
         </Function>
@@ -291,7 +291,7 @@ FROM [dbo].[MeetingStatusHistory] AS [MeetingStatusHistory]</DefiningQuery>
           </FunctionImport>
           <FunctionImport Name="spUpdateMeeting">
             <Parameter Name="MeetingID" Mode="In" Type="Int32" />
-            <Parameter Name="status" Mode="In" Type="String" />
+            <Parameter Name="statusId" Mode="In" Type="Int32" />
             <Parameter Name="email" Mode="In" Type="String" />
             <Parameter Name="OTP" Mode="In" Type="Int32" />
           </FunctionImport>

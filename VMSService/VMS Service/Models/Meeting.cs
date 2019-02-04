@@ -17,6 +17,6 @@ namespace VMS_Service.Models
 
         public string Purpose { get; set; }
 
-        public DateTime DateTime { get; set; }
+        public string DateTime { get; set; }
     }
 }
