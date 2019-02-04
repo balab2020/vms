@@ -4,8 +4,8 @@
     {
         Meeting GetMeeting(int id);
 
-        int CreateMeeting(int visitorId, string email, string mobile, System.DateTime dateTime, string purpose);
+        void CreateMeeting(int organizorId, string email, string mobile, System.DateTime dateTime, string purpose);
 
-        bool UpdateMeeting(int id, MeetingState state);
+        bool UpdateMeeting(int id, MeetingState state,string email = null);
     }
 }

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="VMSDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="VMSDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Meeting">
           <Key>
             <PropertyRef Name="MeetingId" />
@@ -112,6 +112,12 @@ warning 6002: The table/view 'VMS.dbo.MeetingStatusHistory' does not have a prim
           <Parameter Name="ScheduledDate" Type="datetime" Mode="In" />
           <Parameter Name="Purpose" Type="nvarchar(max)" Mode="In" />
         </Function>
+        <Function Name="spUpdateMeeting" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="MeetingID" Type="int" Mode="In" />
+          <Parameter Name="status" Type="varchar" Mode="In" />
+          <Parameter Name="email" Type="varchar" Mode="In" />
+          <Parameter Name="OTP" Type="int" Mode="In" />
+        </Function>
         <EntityContainer Name="VMSDbModelStoreContainer">
           <EntitySet Name="Meeting" EntityType="Self.Meeting" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MeetingStatus" EntityType="Self.MeetingStatus" Schema="dbo" store:Type="Tables" />
@@ -144,8 +150,7 @@ FROM [dbo].[MeetingStatusHistory] AS [MeetingStatusHistory]</DefiningQuery>
             <End Role="MeetingStatusHistory" EntitySet="MeetingStatusHistory" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="VMSDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -284,6 +289,12 @@ FROM [dbo].[MeetingStatusHistory] AS [MeetingStatusHistory]</DefiningQuery>
             <Parameter Name="ScheduledDate" Mode="In" Type="DateTime" />
             <Parameter Name="Purpose" Mode="In" Type="String" />
           </FunctionImport>
+          <FunctionImport Name="spUpdateMeeting">
+            <Parameter Name="MeetingID" Mode="In" Type="Int32" />
+            <Parameter Name="status" Mode="In" Type="String" />
+            <Parameter Name="email" Mode="In" Type="String" />
+            <Parameter Name="OTP" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
@@ -344,6 +355,7 @@ FROM [dbo].[MeetingStatusHistory] AS [MeetingStatusHistory]</DefiningQuery>
             </EntityTypeMapping>
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="spCreateMeeting" FunctionName="VMSDbModel.Store.spCreateMeeting" />
+          <FunctionImportMapping FunctionImportName="spUpdateMeeting" FunctionName="VMSDbModel.Store.spUpdateMeeting" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

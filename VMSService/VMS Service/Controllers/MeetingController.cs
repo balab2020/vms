@@ -2,7 +2,7 @@
 {
     using System.Web.Http;
     using VMS_Service.Database;
-    using Meeting = VMS_Service.Models.Meeting;
+    using Meeting = Models.Meeting;
 
     public class MeetingController : ApiController
     {
@@ -37,15 +37,15 @@
         }
 
         [HttpPut]
-        public void Acknowledge([FromUri]int meetingId)
+        public void Acknowledge([FromUri]int meetingId, [FromUri] string email)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Acknowledged);
+            _store.UpdateMeeting(meetingId, MeetingState.Acknowledged, email);
         }
 
         [HttpPut]
         public void Cancel([FromUri]int meetingId, [FromUri]string userEmail)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Cancelled);
+            _store.UpdateMeeting(meetingId, MeetingState.Cancelled, userEmail);
         }
 
         [HttpPut]
@@ -57,7 +57,7 @@
         [HttpPut]
         public void Complete([FromUri]int meetingId, [FromUri]string userEmail)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Closed);
+            _store.UpdateMeeting(meetingId, MeetingState.Closed, userEmail);
         }
     }
 }

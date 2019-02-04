@@ -1,20 +1,41 @@
-﻿namespace VMS_Service.Database
+﻿using System;
+using System.Linq;
+
+namespace VMS_Service.Database
 {
     public class VMSStore : IVMSStore
     {
-        public int CreateMeeting(int visitorId, string email, string mobile, System.DateTime dateTime, string purpose)
+        public void CreateMeeting(int organizorId, string email, string mobile, System.DateTime dateTime, string purpose)
         {
-            throw new System.NotImplementedException();
+            using (var db = new VMSDbEntities())
+            {
+                db.spCreateMeeting(organizorId, email, mobile, dateTime, purpose);
+            }
         }
 
         public Meeting GetMeeting(int id)
         {
-            throw new System.NotImplementedException();
+            using (var db = new VMSDbEntities())
+            {
+                var meeting =  db.Meetings
+                    .Where(m => m.MeetingId == id)
+                    .FirstOrDefault();
+                meeting.Visitor = db.Visitors
+                    .Where(v => v.VisitorId == meeting.VisitorId)
+                    .FirstOrDefault();
+                return meeting;
+            }
         }
 
-        public bool UpdateMeeting(int id, MeetingState state)
+        public bool UpdateMeeting(int id, MeetingState state, string email = null)
         {
-            throw new System.NotImplementedException();
+            using (var db = new VMSDbEntities())
+            {
+                Random randomGenerator = new Random();
+                var otp = state == MeetingState.Acknowledged ? randomGenerator.Next(100000,999999) : -1;
+                db.spUpdateMeeting(id, state.ToString(), email??string.Empty, otp );   
+            }
+            return true;
         }
     }
 }

@@ -58,5 +58,26 @@ namespace VMS_Service.Database
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spCreateMeeting", organizerIdParameter, visitorEmailParameter, contactNumberParameter, scheduledDateParameter, purposeParameter);
         }
+    
+        public virtual int spUpdateMeeting(Nullable<int> meetingID, string status, string email, Nullable<int> oTP)
+        {
+            var meetingIDParameter = meetingID.HasValue ?
+                new ObjectParameter("MeetingID", meetingID) :
+                new ObjectParameter("MeetingID", typeof(int));
+    
+            var statusParameter = status != null ?
+                new ObjectParameter("status", status) :
+                new ObjectParameter("status", typeof(string));
+    
+            var emailParameter = email != null ?
+                new ObjectParameter("email", email) :
+                new ObjectParameter("email", typeof(string));
+    
+            var oTPParameter = oTP.HasValue ?
+                new ObjectParameter("OTP", oTP) :
+                new ObjectParameter("OTP", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spUpdateMeeting", meetingIDParameter, statusParameter, emailParameter, oTPParameter);
+        }
     }
 }
