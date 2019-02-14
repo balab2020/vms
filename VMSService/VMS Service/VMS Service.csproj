@@ -102,6 +102,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapter\GmailAdapter.cs" />
+    <Compile Include="Adapter\IMailMessageBuilder.cs" />
+    <Compile Include="Adapter\IMailServer.cs" />
+    <Compile Include="Adapter\MailMessageBuilder.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\MeetingController.cs" />

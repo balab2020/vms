@@ -5,11 +5,11 @@ namespace VMS_Service.Database
 {
     public class VMSStore : IVMSStore
     {
-        public void CreateMeeting(int organizorId, string email, string mobile, System.DateTime dateTime, string purpose)
+        public int CreateMeeting(int organizorId, string email, string mobile, System.DateTime dateTime, string purpose)
         {
             using (var db = new VMSDbEntities())
             {
-                db.spCreateMeeting(organizorId, email, mobile, dateTime, purpose);
+                return db.spCreateMeeting(organizorId, email, mobile, dateTime, purpose);
             }
         }
 
@@ -17,14 +17,27 @@ namespace VMS_Service.Database
         {
             using (var db = new VMSDbEntities())
             {
-                var meeting =  db.Meetings
+                var meeting = db.Meetings
                     .Where(m => m.MeetingId == id)
-                    .FirstOrDefault();
-                meeting.Visitor = db.Visitors
-                    .Where(v => v.VisitorId == meeting.VisitorId)
-                    .FirstOrDefault();
+                    .FirstOrDefault();                
+                meeting.Visitor = GetVisitor(db, meeting.VisitorId);
+                meeting.Organizer = GetOrganizor(db, meeting.OrganizerId);
                 return meeting;
             }
+        }
+
+        private Organizer GetOrganizor(VMSDbEntities db, int id)
+        {
+            return db.Organizers
+                .Where(v => v.OrganizerId == id)
+                .FirstOrDefault();
+        }
+
+        private Visitor GetVisitor(VMSDbEntities db, int visitorId)
+        {
+            return db.Visitors
+                .Where(v => v.VisitorId == visitorId)
+                .FirstOrDefault();
         }
 
         public bool UpdateMeeting(int id, MeetingState state, string email = null)

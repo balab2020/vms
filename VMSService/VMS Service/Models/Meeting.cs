@@ -11,6 +11,8 @@ namespace VMS_Service.Models
 
         public int OrganizorId { get; set; }
 
+        public string OrganizorName { get; set; }
+
         public string VisitorEmail { get; set; }
 
         public string Mobile { get; set; }

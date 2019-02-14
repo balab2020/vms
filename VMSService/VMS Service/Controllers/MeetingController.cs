@@ -1,6 +1,7 @@
 ﻿namespace VMS_Service.Controllers
 {
     using System.Web.Http;
+    using VMS_Service.Adapter;
     using VMS_Service.Database;
     using Meeting = Models.Meeting;
 
@@ -10,9 +11,12 @@
 
         private readonly IVMSStore _store;
 
+        private readonly MailMessageBuilder _mailMessageBuilder;
+
         public MeetingController()
         {
             _store = new VMSStore();
+            _mailMessageBuilder = new MailMessageBuilder();
         }
 
         /// <summary>
@@ -31,6 +35,7 @@
                 DateTime = meeting.Date.ToString(),
                 MeetingId = id,
                 OrganizorId = meeting.OrganizerId,
+                OrganizorName = meeting.Organizer.Name,
                 Mobile = meeting.Visitor.ContactNumber,
                 Purpose = meeting.Purpose,
                 VisitorEmail = meeting.Visitor.EmailId
@@ -51,7 +56,20 @@
         [HttpPost]
         public void Create([FromBody]Meeting meeting)
         {
-            _store.CreateMeeting(meeting.OrganizorId,meeting.VisitorEmail, meeting.Mobile,System.DateTime.Parse(meeting.DateTime),meeting.Purpose);
+            try
+            {
+                var meetingid = _store.CreateMeeting(meeting.OrganizorId, meeting.VisitorEmail, meeting.Mobile, System.DateTime.Parse(meeting.DateTime), meeting.Purpose);
+                var meetingCreated = this.GetMeeting(meetingid);
+                var gmail = new GmailServer();
+                gmail.Send(
+                    meetingCreated.VisitorEmail,
+                    _mailMessageBuilder.BuildSubject(meetingCreated.OrganizorName),
+                    _mailMessageBuilder.BuildBody(meetingCreated)
+                );
+            }
+            catch (System.Exception)
+            {
+            }
         }
 
         /// <summary>
