@@ -1,5 +1,8 @@
 ﻿namespace VMS_Service.Controllers
 {
+    using System.Net;
+    using System.Net.Http;
+    using System.Text;
     using System.Web.Http;
     using VMS_Service.Adapter;
     using VMS_Service.Database;
@@ -19,14 +22,8 @@
             _mailMessageBuilder = new MailMessageBuilder();
         }
 
-        /// <summary>
-        /// http://localhost:53781/api/meeting?id=7
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>
-        /// </returns>
-        [HttpGet]
-        public Meeting GetMeeting(int id)
+        [NonAction]
+        private Meeting GetMeeting(int id)
         {
             var meeting = _store.GetMeeting(id);
 
@@ -38,8 +35,21 @@
                 OrganizorName = meeting.Organizer.Name,
                 Mobile = meeting.Visitor.ContactNumber,
                 Purpose = meeting.Purpose,
-                VisitorEmail = meeting.Visitor.EmailId
+                VisitorEmail = meeting.Visitor.EmailId,
+                OTP = meeting.OTP.ToString()
             };
+        }
+
+        /// <summary>
+        /// http://localhost:53781/api/meeting?id=7
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// </returns>
+        [HttpGet]
+        public IHttpActionResult Get(int id)
+        {           
+            return Ok(GetMeeting(id));
         }
 
         /// <summary>
@@ -54,22 +64,31 @@
         /// </summary>
         /// <param name="meeting"></param>
         [HttpPost]
-        public void Create([FromBody]Meeting meeting)
+        public IHttpActionResult Create([FromBody]Meeting meeting)
         {
             try
             {
                 var meetingid = _store.CreateMeeting(meeting.OrganizorId, meeting.VisitorEmail, meeting.Mobile, System.DateTime.Parse(meeting.DateTime), meeting.Purpose);
-                var meetingCreated = this.GetMeeting(meetingid);
-                var gmail = new GmailServer();
-                gmail.Send(
-                    meetingCreated.VisitorEmail,
-                    _mailMessageBuilder.BuildSubject(meetingCreated.OrganizorName),
-                    _mailMessageBuilder.BuildBody(meetingCreated)
-                );
+                var meetingCreated = GetMeeting(meetingid);
+                try
+                {
+                    var gmail = new GmailServer();
+                    gmail.Send(
+                        meetingCreated.VisitorEmail,
+                        _mailMessageBuilder.BuildSubject(meetingCreated.OrganizorName),
+                        _mailMessageBuilder.BuildBody(meetingCreated)
+                    );
+                }
+                catch (System.Exception)
+                {
+                    return Created("Meeting", meetingCreated);
+                }
+                return Ok(meetingCreated);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
             }
+            return BadRequest();
         }
 
         /// <summary>
@@ -79,9 +98,17 @@
         /// <param name="email"></param>
         [HttpPut]
         [Route("Acknowledge/{meetingId}")]
-        public void Acknowledge(int meetingId, [FromUri] string email)
+        public IHttpActionResult Acknowledge(int meetingId, [FromUri] string email)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Acknowledged, email);
+            try
+            {
+                _store.UpdateMeeting(meetingId, MeetingState.Acknowledged, email);                
+                return Ok();
+            }
+            catch (System.Exception)
+            {
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotModified, new HttpError()));
+            }
         }
 
         /// <summary>
@@ -91,9 +118,17 @@
         /// <param name="email"></param>
         [HttpPut]
         [Route("Complete/{meetingId}")]
-        public void Complete(int meetingId, [FromUri] string email)
+        public IHttpActionResult Complete(int meetingId, [FromUri] string email)
         {
-            _store.UpdateMeeting(meetingId, MeetingState.Closed, email);
+            try
+            {
+                _store.UpdateMeeting(meetingId, MeetingState.Closed, email);
+                return Ok();
+            }
+            catch (System.Exception)
+            {
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotModified, new HttpError()));
+            }
         }
     }
 }

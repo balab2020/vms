@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
-
-namespace VMS_Service
+﻿namespace VMS_Service
 {
+    using System.Web.Http;
     public static class WebApiConfig
     {
         public static void Register(HttpConfiguration config)

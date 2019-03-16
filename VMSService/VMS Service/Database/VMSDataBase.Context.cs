@@ -16,10 +16,10 @@ namespace VMS_Service.Database
     using System.Data.Objects.DataClasses;
     using System.Linq;
     
-    public partial class VMSDbEntities : DbContext
+    public partial class VMSEntities : DbContext
     {
-        public VMSDbEntities()
-            : base("name=VMSDbEntities")
+        public VMSEntities()
+            : base("name=VMSEntities")
         {
         }
     
@@ -34,7 +34,7 @@ namespace VMS_Service.Database
         public DbSet<Visitor> Visitors { get; set; }
         public DbSet<MeetingStatusHistory> MeetingStatusHistories { get; set; }
     
-        public virtual int spCreateMeeting(Nullable<int> organizerId, string visitorEmail, string contactNumber, Nullable<System.DateTime> scheduledDate, string purpose)
+        public virtual ObjectResult<Nullable<int>> spCreateMeeting(Nullable<int> organizerId, string visitorEmail, string contactNumber, Nullable<System.DateTime> scheduledDate, string purpose, Nullable<int> oTP)
         {
             var organizerIdParameter = organizerId.HasValue ?
                 new ObjectParameter("OrganizerId", organizerId) :
@@ -56,7 +56,11 @@ namespace VMS_Service.Database
                 new ObjectParameter("Purpose", purpose) :
                 new ObjectParameter("Purpose", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spCreateMeeting", organizerIdParameter, visitorEmailParameter, contactNumberParameter, scheduledDateParameter, purposeParameter);
+            var oTPParameter = oTP.HasValue ?
+                new ObjectParameter("OTP", oTP) :
+                new ObjectParameter("OTP", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("spCreateMeeting", organizerIdParameter, visitorEmailParameter, contactNumberParameter, scheduledDateParameter, purposeParameter, oTPParameter);
         }
     
         public virtual int spUpdateMeeting(Nullable<int> meetingID, Nullable<int> statusId, string email, Nullable<int> oTP)

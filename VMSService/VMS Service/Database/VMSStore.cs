@@ -1,15 +1,18 @@
-﻿using System;
-using System.Linq;
-
-namespace VMS_Service.Database
+﻿namespace VMS_Service.Database
 {
+    using System;
+using System.Linq;
+using VMSDbEntities = VMS_Service.Database.VMSEntities;
+
     public class VMSStore : IVMSStore
     {
         public int CreateMeeting(int organizorId, string email, string mobile, System.DateTime dateTime, string purpose)
         {
             using (var db = new VMSDbEntities())
             {
-                return db.spCreateMeeting(organizorId, email, mobile, dateTime, purpose);
+                var random = new Random();
+                var otp = random.Next(100001, 999999);
+                return (int)db.spCreateMeeting(organizorId, email, mobile, dateTime, purpose,otp).FirstOrDefault();
             }
         }
 
@@ -49,6 +52,14 @@ namespace VMS_Service.Database
                 db.spUpdateMeeting(id, (int)state, email??string.Empty, otp );   
             }
             return true;
+        }
+
+        public Organizer GetOrganizer(string email)
+        {
+            using (var db = new VMSDbEntities())
+            {
+                return db.Organizers.FirstOrDefault(o=>o.Email == email);
+            }
         }
     }
 }

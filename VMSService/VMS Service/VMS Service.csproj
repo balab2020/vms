@@ -67,6 +67,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="zxing, Version=0.16.2.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.0.16.2\lib\net461\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.2.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.0.16.2\lib\net461\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -86,17 +92,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Database\VMSDatabase.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>VMSDatabase.edmx</DependentUpon>
+      <LastGenOutput>VMSDatabase.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Database\VMSDatabase.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>VMSDatabase.edmx</DependentUpon>
+      <LastGenOutput>VMSDatabase.cs</LastGenOutput>
+    </Content>
     <Content Include="Global.asax" />
-    <Content Include="Database\VMSDataBase.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>VMSDataBase.edmx</DependentUpon>
-      <LastGenOutput>VMSDataBase.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Database\VMSDataBase.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>VMSDataBase.edmx</DependentUpon>
-      <LastGenOutput>VMSDataBase.cs</LastGenOutput>
-    </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -107,55 +113,57 @@
     <Compile Include="Adapter\IMailServer.cs" />
     <Compile Include="Adapter\MailMessageBuilder.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BarcodeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\MeetingController.cs" />
     <Compile Include="Database\IVMSStore.cs" />
+    <Compile Include="Database\Meeting.cs">
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
     <Compile Include="Database\MeetingState.cs" />
+    <Compile Include="Database\MeetingStatu.cs">
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\MeetingStatusHistory.cs">
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\Organizer.cs">
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\Visitor.cs">
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\VMSDatabase.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VMSDatabase.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\VMSDatabase.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VMSDatabase.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\VMSDatabase.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VMSDatabase.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Database\VMSStore.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Database\Meeting.cs">
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\MeetingStatu.cs">
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\MeetingStatusHistory.cs">
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\Organizer.cs">
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\Visitor.cs">
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\VMSDataBase.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>VMSDataBase.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\VMSDataBase.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>VMSDataBase.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Database\VMSDataBase.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>VMSDataBase.edmx</DependentUpon>
-    </Compile>
+    <Compile Include="Models\BarCode.cs" />
     <Compile Include="Models\Meeting.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EntityDeploy Include="Database\VMSDataBase.edmx">
+    <EntityDeploy Include="Database\VMSDatabase.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>VMSDataBase.Designer.cs</LastGenOutput>
+      <LastGenOutput>VMSDatabase.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Database\VMSDataBase.edmx.diagram">
-      <DependentUpon>VMSDataBase.edmx</DependentUpon>
+    <Content Include="Database\VMSDatabase.edmx.diagram">
+      <DependentUpon>VMSDatabase.edmx</DependentUpon>
     </Content>
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
