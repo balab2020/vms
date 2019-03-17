@@ -6,19 +6,26 @@
 
     public class MailMessageBuilder
     {
-        public string BuildBody(Meeting meeting)
+        public string BuildBody(Meeting meeting, bool isInvite = true)
         {
             var ipServer = System.Configuration.ConfigurationManager.AppSettings["ServerIp"];
             var url = $"http://{ipServer}/api/meeting/Acknowledge/${meeting.MeetingId}?email={meeting.VisitorEmail}";
             var message = $"<p> Your are being invited to meet <strong>{meeting.OrganizorName}</strong> for discussing about {meeting.Purpose}  which scheduled at { meeting.DateTime.ToString()}.</ p >";
-            var barcode = BarcodeController.GenerateQrcodeBase64(meeting.OTP);
+            var barcode = BarcodeController.GenerateQrcodeBase64(meeting.MeetingId + "," + meeting.OTP);
             var mailBody = new StringBuilder();
             mailBody.Append("<html><body>");
             mailBody.Append($"<p>Dear {meeting.VisitorEmail},</p>");
-            mailBody.Append($"<p>You are being invited to meet Mr.{meeting.OrganizorName.ToUpper()} for {meeting.Purpose}.</p>");
-            mailBody.Append($"<p>Meeting (Id:<strong>{meeting.MeetingId}</strong>) is scheduled at <strong>{meeting.DateTime.ToString()}</strong></p>");
-            mailBody.Append($"<p>Please show this mail at security gate, click <a href=\"{url}\">here</a> to confirm your visit.</p>");
-            mailBody.Append($"<br/><img src=\"data:image/bitmap;base64,{barcode}\"/>");
+            if (isInvite)
+            {
+                mailBody.Append($"<p>You are being invited to meet Mr.{meeting.OrganizorName.ToUpper()} for {meeting.Purpose}.</p>");
+                mailBody.Append($"<p>Meeting (Id:<strong>{meeting.MeetingId}</strong>) is scheduled at <strong>{meeting.DateTime.ToString()}</strong></p>");
+                mailBody.Append($"<p>Please show this mail at security gate, click <a href=\"{url}\">here</a> to confirm your visit.</p>");
+                mailBody.Append($"<br/><img src=\"data:image/bitmap;base64,{barcode}\"/>");
+            }
+            else
+            {
+                mailBody.Append($"Your meeting is approved. Thanks for visiting campus to meet {meeting.OrganizorName}");
+            }
             mailBody.Append("<br/><p>Thanks & Regards,</p>");
             mailBody.Append("<a href='http://www.psnacet.edu.in/'>");
             mailBody.Append("<span>PSNA CET Team</span>");

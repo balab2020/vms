@@ -115,15 +115,26 @@
         /// http://localhost:53781/api/meeting/Complete/1003?email=bbaba@asd.com
         /// </summary>
         /// <param name="meetingId"></param>
-        /// <param name="email"></param>
+        /// <param name="otp"></param>
         [HttpPut]
         [Route("Complete/{meetingId}")]
-        public IHttpActionResult Complete(int meetingId, [FromUri] string email)
+        public IHttpActionResult Complete(int meetingId, [FromUri] string otp)
         {
             try
             {
-                _store.UpdateMeeting(meetingId, MeetingState.Closed, email);
-                return Ok();
+                var meeting = GetMeeting(meetingId);
+                if (meeting != null && meeting.OTP == otp)
+                {
+                    _store.UpdateMeeting(meetingId, MeetingState.Closed, meeting.VisitorEmail);
+                    var gmail = new GmailServer();
+                    gmail.Send(
+                        meeting.VisitorEmail,
+                        "PSNACET: Thanks for Visiting us to meet " + meeting.OrganizorName,
+                        _mailMessageBuilder.BuildBody(meeting, false)
+                    );
+                    return Ok(meeting);
+                }
+                return BadRequest("Rejected: OTP is not matching or invalid meeting id");
             }
             catch (System.Exception)
             {

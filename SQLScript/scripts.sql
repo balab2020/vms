@@ -1,8 +1,13 @@
-CREATE DATABASE VMS
-GO
 USE [VMS]
 GO
-/****** Object:  Table [dbo].[Meeting]    Script Date: 2/4/2019 5:32:02 PM ******/
+/****** Object:  User [sadmin]    Script Date: 3/17/2019 9:02:22 AM ******/
+CREATE USER [sadmin] FOR LOGIN [sadmin] WITH DEFAULT_SCHEMA=[dbo]
+GO
+ALTER ROLE [db_owner] ADD MEMBER [sadmin]
+GO
+ALTER ROLE [db_securityadmin] ADD MEMBER [sadmin]
+GO
+/****** Object:  Table [dbo].[Meeting]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -20,7 +25,7 @@ CREATE TABLE [dbo].[Meeting](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[MeetingStatus]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  Table [dbo].[MeetingStatus]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -34,7 +39,7 @@ CREATE TABLE [dbo].[MeetingStatus](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[MeetingStatusHistory]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  Table [dbo].[MeetingStatusHistory]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -48,7 +53,7 @@ CREATE TABLE [dbo].[MeetingStatusHistory](
 	[UserEmail] [nvarchar](250) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Organizer]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  Table [dbo].[Organizer]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -59,13 +64,14 @@ CREATE TABLE [dbo].[Organizer](
 	[Name] [nvarchar](250) NOT NULL,
 	[Department] [nvarchar](250) NOT NULL,
 	[Designation] [nvarchar](250) NOT NULL,
+	[Email] [nvarchar](250) NULL,
  CONSTRAINT [PK_Organizer] PRIMARY KEY CLUSTERED 
 (
 	[OrganizerId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Visitor]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  Table [dbo].[Visitor]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -79,7 +85,6 @@ CREATE TABLE [dbo].[Visitor](
 	[VisitorId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-GO
 GO
 INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (1, N'Initiated')
 GO
@@ -95,7 +100,15 @@ INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (6, N'Postpone
 GO
 INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (7, N'Cancelled')
 GO
-
+SET IDENTITY_INSERT [dbo].[Organizer] ON 
+GO
+INSERT [dbo].[Organizer] ([OrganizerId], [Password], [Name], [Department], [Designation], [Email]) VALUES (1, N'password123', N'vijay', N'CSE', N'Prefessor', N'vijay@psna.com')
+GO
+SET IDENTITY_INSERT [dbo].[Organizer] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Visitor] ON 
+SET IDENTITY_INSERT [dbo].[Visitor] OFF
+GO
 ALTER TABLE [dbo].[Meeting]  WITH CHECK ADD  CONSTRAINT [FK_Meeting_Organizer] FOREIGN KEY([OrganizerId])
 REFERENCES [dbo].[Organizer] ([OrganizerId])
 GO
@@ -116,7 +129,7 @@ REFERENCES [dbo].[MeetingStatus] ([MeetingStatusId])
 GO
 ALTER TABLE [dbo].[MeetingStatusHistory] CHECK CONSTRAINT [FK_MeetingStatusHistory_MeetingStatus]
 GO
-/****** Object:  StoredProcedure [dbo].[spCreateMeeting]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  StoredProcedure [dbo].[spCreateMeeting]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -127,12 +140,10 @@ CREATE PROCEDURE [dbo].[spCreateMeeting]
 	@VisitorEmail NVARCHAR(250),
 	@ContactNumber NVARCHAR(50),
 	@ScheduledDate DATETIME,
-	@Purpose NVARCHAR(MAX)
+	@Purpose NVARCHAR(MAX),
+	@OTP INT
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
 
 	DECLARE @VisitorId AS INT;
 
@@ -156,12 +167,14 @@ BEGIN
 			([OrganizerId]
 			,[VisitorId]
 			,[Date]
-			,[Purpose])
+			,[Purpose]
+			,[OTP])
 		VALUES
 			(@OrganizerId
 			,@VisitorId
 			,@ScheduledDate
-			,@Purpose);
+			,@Purpose
+			,@OTP);
 
 		DECLARE @MeetingID AS INT;
 		SELECT @MeetingID = IDENT_CURRENT('Meeting')
@@ -174,9 +187,12 @@ BEGIN
 			   ,[UserEmail]
 		   )VALUES(@MeetingID,1,GETDATE(),'',@VisitorEmail)
 
+		SELECT @MeetingID as 'MeetingId';
+
+		RETURN @MeetingID;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUpdateMeeting]    Script Date: 2/4/2019 5:32:03 PM ******/
+/****** Object:  StoredProcedure [dbo].[spUpdateMeeting]    Script Date: 3/17/2019 9:02:22 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -210,18 +226,4 @@ INSERT INTO [dbo].[MeetingStatusHistory]
 VALUES(@MeetingID,@statusId,GETDATE(),'',@email);
 
 END
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (1, N'Initiated')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (2, N'Acknowledged')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (3, N'Visited')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (4, N'Closed')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (5, N'Rejected')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (6, N'Postponed')
-GO
-INSERT [dbo].[MeetingStatus] ([MeetingStatusId], [Status]) VALUES (7, N'Cancelled')
 GO
